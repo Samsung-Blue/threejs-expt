@@ -1,0 +1,68 @@
+<!DOCTYPE>
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Boxes</title>
+</head>
+<body onmousemove="move(event)">
+	<script src="./three.js"></script>
+	<script>
+		var renderer,scene,camera;
+		var r=[];
+		var g=[];
+		var b=[];
+		var boxes=[];
+		init();
+		function init()
+		{
+			renderer = new THREE.WebGLRenderer();
+			renderer.setSize(window.innerWidth,window.innerHeight);
+			document.body.appendChild(renderer.domElement);
+
+			scene = new THREE.Scene();
+			camera = new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,1,10000);
+			camera.position.z=50;
+			for(i=0;i<6;i++)
+			{
+				r[i] = Math.random();
+				g[i] = Math.random();
+				b[i] = Math.random();
+			}
+			for(i=0;i<50;i++)
+			{
+				var geometry = new THREE.BoxGeometry(2,2,2);
+				for(j=0;j<geometry.faces.length;j+=2)
+				{
+					geometry.faces[j].color.setRGB(r[j/2],g[j/2],b[j/2]);
+					geometry.faces[j+1].color.setRGB(r[j/2],g[j/2],b[j/2]);  
+				} 
+				var material = new THREE.MeshBasicMaterial({vertexColors : THREE.FaceColors,overdraw : 0.5});
+				var cube = new THREE.Mesh(geometry,material);
+				cube.position.x = Math.floor(Math.random()*50)-25;
+				cube.position.y = Math.floor(Math.random()*50)-25;
+				cube.position.z = Math.floor(Math.random()*50)-25;
+				cube.rotation.x = Math.random();
+				cube.rotation.y = Math.random();
+				cube.rotation.z = Math.random();
+				boxes.push(cube);
+			}
+			for(i=0;i<boxes.length;i++)
+				scene.add(boxes[i]);
+			render();
+		}
+		function move(event)
+		{
+			console.log(event.pageX);
+			var mouseX = event.pageX-window.innerWidth/2;
+			if(mouseX<0)
+				mouseX=-mouseX;
+			camera.position.z = mouseX/2;
+			render();
+		}
+		function render() 
+		{
+			renderer.render(scene,camera);
+		}
+	</script>
+</body>
+</html>
