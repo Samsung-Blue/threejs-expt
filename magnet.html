@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Magnets</title>
+	</head>
+	<body>
+		<script type="text/javascript" src="three.js"></script>
+		<script type="text/javascript" src="TrackballControls.js"></script>
+		<script type="text/javascript">
+			var renderer,scene,camera,magnets=[],cube,controls,killcontrols,objcontrols;
+			init();
+			animate();
+			function init()
+			{
+				renderer = new THREE.WebGLRenderer();
+				renderer.setSize(window.innerWidth,window.innerHeight);
+				document.body.appendChild(renderer.domElement);
+
+				camera = new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,1,1000);
+				scene = new THREE.Scene();
+				camera.position.z=50;
+
+				controls = new THREE.TrackballControls(camera);
+				controls.rotateSpeed=3.4;
+				controls.noZoom=true;
+				controls.staticMoving = true;
+				controls.dynamicDampingFactor = 0.3;
+				controls.addEventListener('change',render);
+				killcontrols = false;
+
+
+				for(i=0;i<2;i++)
+				{
+					var geometry = new THREE.BoxGeometry(4,2,2,2,1,1);
+					for(j=0;j<geometry.faces.length;j+=2)
+					{
+						if(j%4==0)
+						{
+							if(j==12||j==4||j==8)
+							{
+								geometry.faces[j].color.setRGB(0,0,1);
+								geometry.faces[j+1].color.setRGB(0,0,1);
+							}
+							else
+							{
+								geometry.faces[j].color.setRGB(1,0,0);
+								geometry.faces[j+1].color.setRGB(1,0,0);
+							}
+						}
+						else
+						{
+							if(j==14||j==6||j==10)
+							{
+								geometry.faces[j].color.setRGB(1,0,0);
+								geometry.faces[j+1].color.setRGB(1,0,0);
+							}
+							else
+							{
+								geometry.faces[j].color.setRGB(0,0,1);
+								geometry.faces[j+1].color.setRGB(0,0,1);
+							}
+						}
+					}
+					var material = new THREE.MeshBasicMaterial({vertexColors : THREE.FaceColors,overdraw : 0.5});
+					cube = new THREE.Mesh(geometry,material);
+					if(i==0)
+						cube.position.x = 8;
+					else
+						cube.position.x = -8;
+					magnets.push(cube);
+				}
+				for(i=0;i<magnets.length;i++)
+					scene.add(magnets[i]);
+				render();
+			}
+
+			function render()
+			{
+				renderer.render(scene,camera);
+			}
+
+			document.addEventListener( 'mousedown', onDocumentMouseDown);
+
+			function onDocumentMouseDown( event )
+			{
+	            event.preventDefault();
+	            var raycaster = new THREE.Raycaster(); // create once
+	            var mouse = new THREE.Vector2(); // create once
+	            mouse.x = ( event.clientX / renderer.domElement.width ) * 2 - 1;
+	            mouse.y = - ( event.clientY / renderer.domElement.height ) * 2 + 1;
+
+	            raycaster.setFromCamera( mouse, camera );
+
+	            var intersects = raycaster.intersectObjects(scene.children,true);
+	            if(intersects.length>0)
+	            {
+	            	console.log(intersects[0])
+	            	objcontrols = new THREE.TrackballControls(intersects[0].object);
+	            	objcontrols.rotateSpeed=1.4;
+					objcontrols.noZoom=true;
+					objcontrols.staticMoving = true;
+					objcontrols.dynamicDampingFactor = 0.3;
+					objcontrols.addEventListener('change',render);
+					animate();
+	            }
+	        }
+
+			function animate()
+			{
+				//controls.update();
+				if(objcontrols)
+				{
+					objcontrols.update();
+				}
+				if(magnets[0].position.x-magnets[1].position.x>4)
+				{
+					acc = 10 /Math.pow((magnets[0].position.x-magnets[1].position.x),2);
+					if(magnets[0].position.x-acc-(magnets[1].position.x+acc)>4)
+					{
+						magnets[0].position.x-=acc;
+						magnets[1].position.x+=acc;
+					}
+					else
+					{
+						var dist = (magnets[0].position.x - magnets[1].position.x-4) /2;
+						magnets[0].position.x-=dist;
+						magnets[1].position.x+=dist;
+					}
+				}
+				render();
+				window.requestAnimationFrame(animate);
+			}
+		</script>
+	</body>
+</html>
