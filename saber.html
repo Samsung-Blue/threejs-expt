@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ThreeJS Test App</title>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <script src="./three.js"></script>
+    <script type="text/javascript">
+        var renderer,scene,camera,laser,speed;
+        init();
+        function init()
+        {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth/ window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // cylinder
+            var geometry = new THREE.CylinderGeometry(0.2, 0.2, 20, 20);
+            geometry.translate( 0, 20/4, 0 );
+            var material = new THREE.MeshBasicMaterial({color: 0x0000ee , polugonOffset : true,polygonOffsetFactor :-0.1});
+            var cylinder = new THREE.Mesh(geometry, material);
+            scene.add(cylinder);
+            camera.position.z = 20;
+            var maxLeft = document.body.clientWidth;
+            var maxTop = document.body.clientHeight;
+            document.body.addEventListener("mousemove", function(e) {
+                cylinder.rotation.z = (e.clientX * Math.PI / maxLeft) - (Math.PI/2);
+                cylinder.rotation.x = (e.clientY * Math.PI / maxTop) - (Math.PI);
+                // console.log(e.clientY);
+            });
+            var geometry = new THREE.CylinderGeometry(0.01,0.01,2);
+            var material = new THREE.MeshBasicMaterial({"color":"red"});
+            laser = new THREE.Mesh(geometry,material);
+            laser.position.z=-20;
+            laser.position.x=Math.floor(Math.random()*4)-2;
+            laser.rotation.x=Math.PI/2;
+            speed = Math.random()/100-0.005;
+            scene.add(laser);
+            render();
+
+        }
+        // rendering
+        function render() {
+            laser.position.z+=0.1;
+            laser.position.x+=speed;
+            if(laser.position.z>20)
+            {
+                laser.position.z=-20;
+                laser.position.x=Math.floor(Math.random()*4)-2;
+                speed = Math.random()/100-0.005;
+            }
+            requestAnimationFrame(render);
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+</html>
