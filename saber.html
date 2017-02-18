@@ -29,7 +29,7 @@
             // cylinder
             var geometry = new THREE.CylinderGeometry(0.2, 0.2, 20, 20);
             geometry.translate( 0, 20/4, 0 );
-            var material = new THREE.MeshBasicMaterial({color: 0x0000ee , polugonOffset : true,polygonOffsetFactor :-0.1});
+            var material = new THREE.MeshBasicMaterial({color: 0x0000ee , polugonOffset : true,polygonOffsetFactor :-0.1, polygonOffsetUnits: -4.0});
             var cylinder = new THREE.Mesh(geometry, material);
             scene.add(cylinder);
             camera.position.z = 20;
