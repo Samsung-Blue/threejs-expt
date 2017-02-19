@@ -4,10 +4,11 @@
 		<title>Magnets</title>
 	</head>
 	<body>
-		<script type="text/javascript" src="three.js"></script>
-		<script type="text/javascript" src="TrackballControls.js"></script>
+		<script type="text/javascript" src="./three.js"></script>
+		<script type="text/javascript" src="./TrackballControls.js"></script>
 		<script type="text/javascript">
-			var renderer,scene,camera,magnets=[],cube,controls,killcontrols,objcontrols;
+			var renderer,scene,camera,magnets=[],cube,controls,killcontrols,objcontrols,count,timer,flip;
+			count=0;
 			init();
 			animate();
 			function init()
@@ -94,37 +95,79 @@
 	            var intersects = raycaster.intersectObjects(scene.children,true);
 	            if(intersects.length>0)
 	            {
-	            	console.log(intersects[0])
-	            	objcontrols = new THREE.TrackballControls(intersects[0].object);
-	            	objcontrols.rotateSpeed=1.4;
-					objcontrols.noZoom=true;
-					objcontrols.staticMoving = true;
-					objcontrols.dynamicDampingFactor = 0.3;
-					objcontrols.addEventListener('change',render);
-					animate();
+	            	console.log(intersects[0]);
+	            	count=0;
+	            	flipmagnet(intersects[0].object);
 	            }
 	        }
 
+	        function flipmagnet(obj)
+	        {
+	        	if(obj.rotation.y==Math.PI)
+	        		flip = 1;
+	        	else
+	        		flip = 2;
+		        timer = setInterval(function()
+		        {
+		        	console.log(obj.rotation.y);
+		        	if(flip==1)
+		        	{
+		        		if(obj.rotation.y-0.2<0)
+			        	{
+			        		obj.rotation.y=0;
+			        		clearInterval(timer);
+			        	}
+			        	else
+			        		obj.rotation.y-=0.2;
+		        	}
+		        	else
+		        	{
+			        	if(obj.rotation.y+0.2>Math.PI)
+			        	{
+			        		obj.rotation.y=Math.PI;
+			        		clearInterval(timer);
+			        	}
+			        	else
+			        		obj.rotation.y+=0.2;
+			        }
+		        },10);
+		    }
+
+
 			function animate()
 			{
-				//controls.update();
-				if(objcontrols)
+				controls.update();
+				if(magnets[0].rotation.y==magnets[1].rotation.y)
 				{
-					objcontrols.update();
-				}
-				if(magnets[0].position.x-magnets[1].position.x>4)
-				{
-					acc = 10 /Math.pow((magnets[0].position.x-magnets[1].position.x),2);
-					if(magnets[0].position.x-acc-(magnets[1].position.x+acc)>4)
+					if(magnets[0].position.x-magnets[1].position.x>4)
 					{
-						magnets[0].position.x-=acc;
-						magnets[1].position.x+=acc;
+						acc = 10 /Math.pow((magnets[0].position.x-magnets[1].position.x),2);
+						if(magnets[0].position.x-acc-(magnets[1].position.x+acc)>4)
+						{
+							magnets[0].position.x-=acc;
+							magnets[1].position.x+=acc;
+						}
+						else
+						{
+							var dist = (magnets[0].position.x - magnets[1].position.x-4) /2;
+							magnets[0].position.x-=dist;
+							magnets[1].position.x+=dist;
+						}
+					}
+				}
+				else
+				{
+					if(magnets[1].position.x-acc>-10&&magnets[0].position.x+acc<10)
+					{
+						acc = 10 /Math.pow((magnets[0].position.x-magnets[1].position.x),2);
+						magnets[0].position.x+=acc;
+						magnets[1].position.x-=acc;
 					}
 					else
 					{
-						var dist = (magnets[0].position.x - magnets[1].position.x-4) /2;
-						magnets[0].position.x-=dist;
-						magnets[1].position.x+=dist;
+						var dist = 10 - magnets[0].position.x;
+						magnets[0].position.x+=dist;
+						magnets[1].position.x-=dist;
 					}
 				}
 				render();
